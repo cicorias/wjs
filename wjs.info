@@ -1,0 +1,5 @@
+name = wjs
+description = Wjs library support for Drupal 6.
+core = 6.x
+package = weeger
+dependencies[] = libraries

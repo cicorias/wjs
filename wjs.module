@@ -1,0 +1,50 @@
+<?php
+/**
+ * @file Manage Wjs instance and custom hooks.
+ */
+
+module_load_include('inc', 'wjs', 'wjs.admin');
+
+/**
+ * Implements hook_wjs().
+ */
+function wjs_init() {
+  // Create global wjs instance.
+  $wjs = wjs_wjs();
+  // Files path is set by wjs.
+  $files = $wjs->jsFiles('server');
+  // Add core javascript files.
+  foreach ($files as $file) {
+    drupal_add_js($file);
+  }
+  $args = arg();
+  // Launch a hook especially to allow modules
+  // to register all needed extensions.
+  module_invoke_all('wjs_register', $wjs);
+  // If we are on the ajax callback.
+  if ($args[0] === 'wjs' && count($args) === 1) {
+    module_invoke_all('wjs_response', $wjs);
+  }
+  else {
+    module_invoke_all('wjs_startup', $wjs);
+  }
+  // Save into header.
+  drupal_add_js($wjs->renderJsUnpacker(), 'inline');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function wjs_menu() {
+  $items = array();
+
+  $items['wjs'] = array(
+    'title'            => 'WE Javascript loading page',
+    'page callback'    => '_wjs_request_callback',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+    'file'             => 'wjs.pages.inc',
+  );
+
+  return $items;
+}
