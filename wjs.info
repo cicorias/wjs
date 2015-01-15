@@ -3,3 +3,4 @@ description = Wjs library support for Drupal 7.
 core = 7.x
 package = weeger
 dependencies[] = libraries
+configure = admin/config/development/wjs

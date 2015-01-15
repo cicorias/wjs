@@ -9,18 +9,21 @@ module_load_include('inc', 'wjs', 'wjs.admin');
  * Implements hook_wjs().
  */
 function wjs_init() {
-  // Create global wjs instance.
-  $wjs = wjs_wjs();
-  $args = arg();
-  // Launch a hook especially to allow modules
-  // to register all needed extensions.
-  module_invoke_all('wjs_register', $wjs);
-  // If we are on the ajax callback.
-  if ($args[0] === 'wjs' && count($args) === 1) {
-    module_invoke_all('wjs_response', $wjs);
-  }
-  else {
-    module_invoke_all('wjs_startup', $wjs);
+  // Wjs can be disabled.
+  if (variable_get('wjs_enable', TRUE)) {
+    // Create global wjs instance.
+    $wjs  = wjs_wjs();
+    $args = arg();
+    // Launch a hook especially to allow modules
+    // to register all needed extensions.
+    module_invoke_all('wjs_register', $wjs);
+    // If we are on the ajax callback.
+    if ($args[0] === 'wjs' && count($args) === 1) {
+      module_invoke_all('wjs_response', $wjs);
+    }
+    else {
+      module_invoke_all('wjs_startup', $wjs);
+    }
   }
 }
 
@@ -28,16 +31,19 @@ function wjs_init() {
  * Implements hook_page_build().
  */
 function wjs_page_build(&$page) {
-  // Get global wjs instance.
-  $wjs = wjs_wjs();
-  // Files path is set by wjs.
-  $files = $wjs->jsFiles('server');
-  // Add core javascript files.
-  foreach ($files as $file) {
-    drupal_add_js($file);
+  // Wjs can be disabled.
+  if (variable_get('wjs_enable', TRUE)) {
+    // Get global wjs instance.
+    $wjs = wjs_wjs();
+    // Files path is set by wjs.
+    $files = $wjs->jsFiles('server');
+    // Add core javascript files.
+    foreach ($files as $file) {
+      drupal_add_js($file);
+    }
+    // Save into header.
+    drupal_add_js($wjs->renderJsUnpacker(), 'inline');
   }
-  // Save into header.
-  drupal_add_js($wjs->renderJsUnpacker(), 'inline');
 }
 
 /**
@@ -46,13 +52,35 @@ function wjs_page_build(&$page) {
 function wjs_menu() {
   $items = array();
 
-  $items['wjs'] = array(
-    'title'            => 'WE Javascript loading page',
-    'page callback'    => '_wjs_request_callback',
+  // Use user defined response path.
+  $items[wjs_response_path()] = array(
+    'title'            => 'Wjs AJAX response page',
+    'page callback'    => '_wjs_response_callback',
     'access arguments' => array('access content'),
     'type'             => MENU_CALLBACK,
     'file'             => 'wjs.pages.inc',
   );
 
+  $items['admin/config/development/wjs'] = array(
+    'title'            => 'Wjs',
+    'description'      => 'Configure Wjs',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wjs_admin_settings'),
+    'access arguments' => array('administer wjs'),
+    'file'             => 'wjs.admin.inc',
+  );
+
   return $items;
 }
+
+/**
+ * Implements hook_permission().
+ */
+function wjs_permission() {
+  return array(
+    'administer wjs' => array(
+      'title' => t('Administer Wjs'),
+    ),
+  );
+}
+

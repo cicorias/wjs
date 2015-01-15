@@ -6,7 +6,7 @@
 /**
  * Return ajax callback.
  */
-function _wjs_request_callback() {
+function _wjs_response_callback() {
   // Get global wjs instance.
   $wjs = wjs_wjs();
   // Extract request from response.
