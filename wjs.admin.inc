@@ -46,7 +46,7 @@ function wjs_wjs_instance() {
     ),
     'client' => array(
       // Path for AJAX requests.
-      'responsePath' => base_path() . '/' . wjs_response_path(),
+      'responsePath' => base_path() . wjs_response_path(),
       // Required to identify loaders path.
       'wjs'          => base_path() . $path,
     ),
