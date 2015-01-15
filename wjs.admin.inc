@@ -50,7 +50,7 @@ function wjs_wjs_instance() {
       // Required to identify loaders path.
       'wjs'          => base_path() . $path,
     ),
-  ), 'source');
+  ));
 }
 
 /**
