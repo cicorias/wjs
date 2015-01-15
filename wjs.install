@@ -1,0 +1,31 @@
+<?php
+/**
+ * @file Define module requirements.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function wjs_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  $libraries = libraries_get_libraries();
+
+  $requirements['wjs']['title'] = $t('Wjs library');
+
+  if (isset($libraries['wjs'])) {
+    $requirements['wjs']['value']    = $t('Installed');
+    $requirements['wjs']['severity'] = REQUIREMENT_OK;
+  }
+  else {
+    $requirements['wjs']['value']       = $t('Not Installed');
+    $requirements['wjs']['severity']    = REQUIREMENT_ERROR;
+    $requirements['wjs']['description'] = $t('Please install wjs library from %url.', array(
+      '%url' => 'http://wjs.wexample.com'
+    ));
+  }
+
+  return $requirements;
+}
